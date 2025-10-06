@@ -1,5 +1,5 @@
 # CST8916 Assignment 1
-## Jigarkumar Patel, Ahmed Bodou, Elizabeth Kaganovsky
+## Jigarkumar Patel, Ahmed Bodouh, Elizabeth Kaganovsky
 
 ### Section 1: REST and GraphQL for Data Requests and Updates
  - For authentication, use HTTP (JSON Web Token)
