@@ -77,7 +77,7 @@ flowchart LR
 ### Summary:
 In summary, both REST and GraphQL can manage the chat system’s data and authentication effectively.
 REST is easier for simple operations such as login, sending, or storing messages, while GraphQL provides more flexibility and efficiency for retrieving related data like users and messages together.
-However, since both methods rely on the client requesting data, real-time updates require a separate technology such as WebSockets, which will be discussed in the next section.
+However, since both methods rely on the client requesting data, real-time updates require a separate technology such as WebSockets, which will be discussed in the next section..
 
 **Sources:**
 [1] https://auth0.com/docs/secure/tokens/json-web-tokens 
@@ -92,3 +92,167 @@ Describe how WebSockets could be used to handle real-time communication in your 
 Discuss how WebSockets differ from REST and GraphQL in managing real-time data flow.
 
 WebSockets are the most typically used protocol for real-time communication
+
+
+# Section 1 – REST and GraphQL for Data Requests and Updates
+
+Both REST and GraphQL are request–response models.
+This means the client always initiates a request to the server, and the server only replies — there is no continuous or bidirectional connection between them.
+In a live chat system, this affects how often the client must send requests to get new messages or update its data.
+
+## A) REST Approach
+How REST Works:
+
+REST uses multiple endpoints, and each HTTP method defines the type of operation:
+
+POST → create new data (register, login, send a message)
+
+GET → read data (retrieve messages, user info)
+
+PUT → update data (edit profile or message)
+
+DELETE → remove data (delete user or message)
+
+Each request travels one way (client → server), and the server returns a single response — nothing is pushed automatically.
+
+
+## Example REST Data Flow
+
+
+
+##  Registration
+```mermaid
+flowchart LR
+    C[Client] -->|"POST /auth/register (email, password)"| S[Server]
+    S -->|"INSERT user "| D[Database]
+    D -->|"OK (userId)"| S
+    S -->|"201 Created (User registered)"| C
+
+```    
+## Login
+```mermaid
+ 
+    flowchart LR
+    C[Client] -->|"POST /auth/login (email, password)"| S[Server]
+    S -->|" verify password"| D[Database]
+    D -->|"OK (user)"| S
+    S -->|"200 OK (accessToken JWT, user)"| C
+
+```    
+## Send message
+```mermaid
+ 
+  flowchart LR
+    C[Client] -->|"POST /messages (New message) "| S[Server]
+    S -->|"INSERT message "| D[Database]
+    D -->|"OK (messageId)"| S
+    S -->|"201 Created (message)"| C
+
+
+``` 
+## Recieve message
+```mermaid
+   
+flowchart LR
+    C[Client] -->|"GET /messages (LOOP every 10s )"| S[Server]
+    S -->|"SELECT newer messages"| D[Database]
+    D -->|"list"| S
+    S -->|"200 OK (messages)"| C
+``` 
+## Get Message History
+```mermaid
+flowchart LR
+    C[Client] -->|"GET /messages/userId"| S[Server]
+    S -->|"SELECT older messages"| D[Database]
+    D -->|"list"| S
+    S -->|"200 OK (items)"| C
+```
+
+Explanation:
+
+In REST, every action requires a new request from the client.
+For a chat app, this means the client must periodically send GET requests to check for new messages because the server cannot initiate contact.
+
+
+## B) GraphQL Approach
+How GraphQL Works:
+
+GraphQL also follows a request–response model, but instead of multiple URLs,
+it uses a single endpoint (/graphql) for all types of operations:
+
+Query → request (read) data
+
+Mutation → change (write or update) data
+
+The client defines exactly which fields it wants, and the server returns only that information — but still only when requested.
+Like REST, GraphQL is not bidirectional; the client must make a new request to get updated data.
+
+## Example GraphQL Data Flow
+
+## Registration
+```mermaid
+flowchart LR
+    C[Client] -->|"GraphQL Mutation: registerUser(email, password)"| S[GraphQL Server]
+    S -->|"Resolver: createUser"| D[Database]
+    D -->|"INSERT user"| S
+    S -->|"Return {id, name, email}"| C
+```
+## Login
+```mermaid
+flowchart LR
+    C[Client] -->|"GraphQL Mutation: loginUser(email, password)"| S[GraphQL Server]
+    S -->|"Resolver: verifyUserCredentials"| D[Database]
+    D -->|"verify password"| S
+    S -->|"Return {user, accessToken}"| C
+
+```
+## Send message
+```mermaid
+flowchart LR
+    C[Client] -->|"GraphQL Mutation: sendMessage"| S[GraphQL Server]
+    S -->|"Resolver: createMessage"| D[Database]
+    D -->|"INSERT message"| S
+    S -->|"Return {message}"| C
+
+
+```
+## Recieve message
+```mermaid
+flowchart LR
+    C[Client] -->|"GraphQL Subscription: onNewMessage(withUserId)"| S[GraphQL Server]
+    S -->|"Resolver: listenForNewMessages"| D[Database]
+    D -->|"Detect new message event"| S
+    S -->|"Push {message}"| C
+
+```
+## Get Message History
+
+```mermaid
+flowchart LR
+    C[Client] -->|"GraphQL Query: getMessages(withUserId)"| S[GraphQL Server]
+    S -->|"Resolver: fetchMessages"| D[Database]
+    D -->|"SELECT messages ORDER BY timestamp"| S
+    S -->|"Return {items}"| C
+
+```
+
+Explanation:
+
+GraphQL also relies on client-initiated requests.
+The difference is that GraphQL allows the client to choose exactly which data fields to retrieve in a single call,
+reducing the number of round trips needed.
+
+
+###  C) Comparison: REST vs GraphQL (Request–Response Model)
+
+| **Aspect** | **REST** | **GraphQL** |
+|-------------|-----------|-------------|
+| **Connection Type** | Unidirectional (client → server request) | Unidirectional (client → server request) |
+| **Endpoints** | Multiple (/auth/register, /messages, etc.) | Single (/graphql) |
+| **Data Fetching** | Fixed format; may over/under-fetch | Client defines fields precisely |
+| **Performance** | May need multiple requests | Often fewer requests |
+| **Complexity** | Easier to implement | Needs schema and resolvers |
+| **Flexibility** | Limited by endpoint design | High — client controls data shape |
+| **Use Case Fit** | Good for simple CRUD | Better for complex or structured data |
+
+
