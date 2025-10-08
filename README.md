@@ -107,19 +107,20 @@ Because the connection stays open, the chat system feels instant and continuous,
 
 ### Diagram: 
 ```mermaid
-flowchart TB
-  U1["User A (Client)"]
-  WS["WebSocket Server<br/>Persistent Two-Way Connection"]
-  U2["User B (Client)"]
+flowchart LR
+  A["User A (Client)"]
+  WS["WebSocket Server<br/>(Persistent Two-Way Connection)"]
   DB["Database<br/>Messages, Users, ChatRooms"]
+  B["User B (Client)"]
 
   %% Flow
-  U1 -->|Send Message| WS
-  WS --> DB
-  DB --> WS
-  WS -->|Instant Push Message| U2
-  U2 -->|Reply Message| WS
-  WS -->|Broadcast Update| U1
+  A -->|1. Send Message| WS
+  WS -->|2. Store Message| DB
+  DB -->|3. Save Confirmation| WS
+  WS -->|4. Instant Push Message| B
+  B -->|5. Reply Message| WS
+  WS -->|6. Broadcast Update| A
+
 ```
 
 Overall, WebSockets ensure low latency, live message delivery, and a seamless real-time communication experience for all users.
