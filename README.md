@@ -87,11 +87,62 @@ https://www.rfc-editor.org/rfc/rfc7519
 
 
 ## Section 2: WebSockets for Real-time Communication
-Describe how WebSockets could be used to handle real-time communication in your chosen system.
+In a real-time chat application, users expect messages to appear instantly without refreshing the page or repeatedly requesting data.
+WebSockets make this possible by creating a persistent, two-way communication channel between the client and the server.
 
-Discuss how WebSockets differ from REST and GraphQL in managing real-time data flow.
+When a user opens the chat app, the client establishes a WebSocket connection with the server.
+Unlike REST or GraphQL, where a new connection is created for every request, WebSockets keep one open connection active for as long as the user is online.
+This allows both the client and the server to send and receive data at any time.
 
-WebSockets are the most typically used protocol for real-time communication
+For example, when User A sends a message, the client sends it to the server through the WebSocket connection.
+The server immediately pushes that message to all other connected clients (such as User B) who are part of the same chat room.
+This happens in real time — there’s no delay, no need for repeated polling, and no extra requests.
+
+WebSockets can also handle other live updates such as:
+- Typing indicators (“User is typing…”).
+- Online/offline user status.
+- Message delivery or read receipts.
+
+Because the connection stays open, the chat system feels instant and continuous, just like popular apps such as Slack, WhatsApp, or Messenger.<br>
+
+### Diagram: 
+```mermaid
+flowchart TB
+  U1["User A (Client)"]
+  WS["WebSocket Server<br/>Persistent Two-Way Connection"]
+  U2["User B (Client)"]
+  DB["Database<br/>Messages, Users, ChatRooms"]
+
+  %% Flow
+  U1 -->|Send Message| WS
+  WS --> DB
+  DB --> WS
+  WS -->|Instant Push Message| U2
+  U2 -->|Reply Message| WS
+  WS -->|Broadcast Update| U1
+```
+
+Overall, WebSockets ensure low latency, live message delivery, and a seamless real-time communication experience for all users.
+
+--- 
+
+### How WebSockets Differ from REST and GraphQL:
+
+1) REST and GraphQL follow a request–response model.
+- The client must send a new request every time it needs data.
+- The server only responds when asked.
+- For real-time updates, they rely on polling (repeatedly asking the server), which can cause delays.
+
+2) WebSockets, on the other hand, keep a persistent, two-way connection open between the client and the server.
+- The server can push data instantly to all connected clients as soon as something changes.
+- This eliminates the need for polling and provides real-time updates.
+3) In a chat application, this means messages, typing indicators, and online status updates appear immediately, without refreshing or reloading the page.
+
+4) WebSockets provide low latency and a smoother user experience compared to REST or GraphQL for live communication.
+
+   ---
+
+
 
 
 # Section 1 – REST and GraphQL for Data Requests and Updates
