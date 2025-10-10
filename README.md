@@ -1,12 +1,14 @@
 # CST8916 Assignment 1
 Jigarkumar Patel, Ahmed Bodouh, Elizabeth Kaganovsky
 
+## YouTube Presentation Link: https://youtu.be/ZBo1g7oveRo
+
 ## Section 1: REST and GraphQL for Data Requests and Updates
 ### 1. Rest API
 **REST Approach:**<br>
 Representational State Transfer (REST) organizes data into multiple endpoints that provide different information, such as /users, /friends, and /messages. Clients use standardized HTTP methods (GET, PUT, POST and DELETE) to perfom CRUD (Create, Read, Update, Delete) operations which retrieve and display or modify data in the database.
 
-For safety, a good chat application should provide some form of authentication. In this application's case, JSON Web Token (JWT) is the chosen technology. JWT provides a method for clients to authenticate themselves via a compact JSON token transmitted through the URL, post parameter or inside the HTTP header [1]. When the client makes a POST request with the data of a message, the token is included in the header to identify and authenticate the host. The server can then safely process the request and respond to the client.
+For safety, a good chat application should provide some form of authentication. In this application's case, JSON Web Token (JWT) is the chosen technology. JWT provides a method for clients to authenticate themselves via a compact JSON token transmitted through the URL, post parameter or inside the HTTP header <sup>[1]</sup>. When the client makes a POST request with the data of a message, the token is included in the header to identify and authenticate the host. The server can then safely process the request and respond to the client.
 
 REST is a simple and no-nonsense solution for networked communication, but unfortunately is prone to the issues of over-fetching and under-fetching. Querying an endpoint will return a full JSON object, often with significant amounts of unneeded data, which wastes bandwidth and requires both server and client to process irrelevant data. Similarly, an endpoint may not return enough data, necessitating the client querying multiple endpoints to assemble "the full picture" of the needed data, wasting bandwidth and requiring the processing of irreelvant data as well.
 
@@ -95,11 +97,14 @@ flowchart LR
 
 ```
 
+GraphQL also supports subscriptions, a method through which real-time operations are possible that has the server updating the client whenever new information is available. This has an odd niche--GraphQL subscriptions are often built on top of WebSockets (though they may use Server Side Events, a type of push technology), but use flexible data shapes to send precisely what data is needed, much like a hybrid of REST and WebSockets.<sup>[2]</sup>
+
 --- 
 ### 3. Comparison: REST vs GraphQL for Real-Time Chat Application
 | **Aspect** | **REST** | **GraphQL** |
 |-------------|-----------|-------------|
 | **Connection Type** | Unidirectional (client → server request) | Unidirectional (client → server request) |
+| **Underlying architecture**| HTTP Based | HTTP Based <sup>[3]</sup> |
 | **Endpoints** | Multiple endpoints (/auth/register, /messages, etc.) | Single endpoint (/graphql), reduces API complexity |
 | **Data Fetching** | Fixed format; may over/under-fetch, but good for data structures with consistent shape (such as login information or message storage) | Client defines fields precisely, saving bandwidth and reducing processing |
 | **Performance** | May need multiple requests, wasting bandwidth and requiring more processing on both the client and server side | Often fewer requests, but query performance can slow down if the schema or resolver logic becomes complicated |
@@ -107,19 +112,10 @@ flowchart LR
 | **Flexibility** | Low--Limited by endpoint design, but good API design can mitigate this somewhat | High--Allows for combination of related data (eg., user info + messages) into one query |
 | **Use Case Fit** | Good for simple CRUD | Better for complex or structured data |
 | **Real Time Application** | Request-response model only, real-time updates are not built-in | Built-in support for real-time updates through subscriptions |
-| **Caching** | Easy to cache responses and handle authentication using tokens | Caching is much more difficult to manage (But can be done through third party libraries) |
+| **Caching** | Easy to cache responses and handle authentication using tokens | Caching is much more difficult to manage (But can be done through third party libraries)<sup>[4]</sup> |
 
 ### Summary:
-In summary, both REST and GraphQL can manage the chat system’s data and authentication effectively.
-REST is easier for simple operations such as login, sending, or storing messages, while GraphQL provides more flexibility and efficiency for retrieving related data like users and messages together.
-However, since both methods rely on the client requesting data, real-time updates require a separate technology such as WebSockets, which will be discussed in the next section..
-
-**Sources:**
-[1] https://auth0.com/docs/secure/tokens/json-web-tokens 
-
-**Consulted:**
-https://www.rfc-editor.org/rfc/rfc7519
-https://konghq.com/blog/learning-center/graphql 
+In summary, both REST and GraphQL can manage the chat system’s data and authentication effectively. REST is easier for simple operations such as login, sending, or storing messages, while GraphQL provides more flexibility and efficiency for retrieving related data like users and messages together. However, since both methods rely on the client requesting data, real-time updates require a separate technology such as WebSockets, which will be discussed in the next section..
 
 
 ## Section 2: WebSockets for Real-time Communication
@@ -154,10 +150,11 @@ flowchart LR
 --- 
 
 ### How WebSockets Differ from REST and GraphQL:
-| **Aspect** | **REST/GraphQL** | **GraphQL** |
+| **Aspect** | **REST/GraphQL** | **WebSockets** |
 |-------------|-----------|-------------|
 | **Connection Type** | Unidirectional (client → server request) | Bidirectional (client and server can exchnage messages freely) |
-| **State type** | Stateless, re-established for every message | Stateful, maintains connection until termination |
+| **Underlying Architecture** | HTTP-based | HTTP-based (for establishing connection), otherwise TCP<sup>[5]</sup>|
+| **State type** | Stateless, server does not save client info between requests | Stateful, maintains connection until termination |
 | **Updates** | Requires polling | Real-time |
 | **Scalability** | Can support thousands of connections simultaneously without clogging network | Limited support for many connections |
 | **Security** | Authentication performed with every message | Authentication performed once at the handshake stage |
@@ -209,5 +206,24 @@ Chat applications typically have two forms of data flow--predictable, on-demand 
 - This clarity simplifies both the development and maintenance of the codebase
 - Reduces cognitive load compared to a more complex GraphQL setup or a convoluted polling system with REST
 
+### Why Not GraphQL Subscriptions?
+While GraphQL subscriptions merge the technology of REST and WebSockets to provide flexible content from the server in real time, there is a degree of overhead involved in implementing them. While this degree of overhead is not terribly significant (just requires the development team learn GraphQL), a well-designed REST API and WebSocket implementation can minimize the over/under-fetching issues of REST while still providing the real-time capabilities of WebSockets, without the need to learn a new query language.
+
 ### Conclusion
 While both REST and GraphQL are capable of hangling data and authentication, REST is the superior partner for WebSockets in the case of a chat application. REST is simple and offers straightforward handling of standard web operations, while WebSockets offer powerful, scalable, low-latency real-time capabilities. The combinaiton of two two allows the best tool for the job to be used for every facet of communication in this system.
+
+## Disclosures
+OpenAI's ChatGPT was used in the initial drafting of this paper.
+
+## References
+**Sources:**
+
+[1]Auth0, “JSON Web Tokens,” Auth0 Docs. https://auth0.com/docs/secure/tokens/json-web-tokens
+
+‌[2]“Subscriptions | GraphQL,” @graphql, 2024. https://graphql.org/learn/subscriptions/
+
+[3]“GraphQL vs REST API - Difference Between API Design Architectures - AWS,” Amazon Web Services, Inc. https://aws.amazon.com/compare/the-difference-between-graphql-and-rest/
+
+[4]“Caching REST APIs vs. GraphQL APIs,” Stellate.co, 2022. https://stellate.co/blog/caching-rest-vs-graphql
+‌
+[5]“WebSocket Protocol,” www.wallarm.com. https://www.wallarm.com/what/a-simple-explanation-of-what-a-websocket-is
