@@ -225,5 +225,5 @@ OpenAI's ChatGPT was used in the initial drafting of this paper.
 [3]“GraphQL vs REST API - Difference Between API Design Architectures - AWS,” Amazon Web Services, Inc. https://aws.amazon.com/compare/the-difference-between-graphql-and-rest/
 
 [4]“Caching REST APIs vs. GraphQL APIs,” Stellate.co, 2022. https://stellate.co/blog/caching-rest-vs-graphql
-‌
+
 [5]“WebSocket Protocol,” www.wallarm.com. https://www.wallarm.com/what/a-simple-explanation-of-what-a-websocket-is
